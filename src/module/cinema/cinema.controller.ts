@@ -35,4 +35,13 @@ export class CinemaController {
   ) {
     return this.cinemaService.getAllCinema(cinema, currentUser);
   }
+
+  @Get("pagi")
+  @UseGuards(JwtAuthGuard)
+  async pagination(
+    @Query("page") page: number,
+    @Query("limit") limit: number
+  ) {
+    return this.cinemaService.pagination(page, limit);
+  }
 }

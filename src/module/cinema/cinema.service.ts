@@ -6,6 +6,11 @@ import { CinemaDto } from "./dto/cinema.dto";
 import { CategoryCinemaEntity } from "./entity/category_cinema.entity";
 import { UserCinemaEntity } from "./entity/user_cinema.entity";
 
+export interface IPagination {
+  page: number;
+  limit: number;
+}
+
 @Injectable()
 export class CinemaService {
   constructor(
@@ -52,5 +57,18 @@ export class CinemaService {
       },
       relations: ["cinema"]
     });
+  }
+
+  async pagination(page: number, limit: number): Promise<any> {
+    const pagination: IPagination = {
+      page: Number(page || 1),
+      limit: Number(limit || 15),
+    };
+    const skippedItems = (pagination.page - 1) * pagination.limit;
+    const queryBuilder = `select * from user_cinema GROUP BY id ORDER BY id ASC LIMIT ${pagination.limit} OFFSET ${skippedItems}`;
+    const cinema = await this.userCinemaRepo.query(queryBuilder);
+    return {
+      cinema,
+    };
   }
 }
