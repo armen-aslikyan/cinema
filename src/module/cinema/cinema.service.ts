@@ -5,6 +5,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { CinemaDto } from "./dto/cinema.dto";
 import { CategoryCinemaEntity } from "./entity/category_cinema.entity";
 import { UserCinemaEntity } from "./entity/user_cinema.entity";
+import { CinemaPageOptionsDto } from "./dto/cinemaPageOptions.dto";
 
 export interface IPagination {
   page: number;
@@ -47,28 +48,42 @@ export class CinemaService {
     await this.userCinemaRepo.save(userCinemaEntity);
   }
 
-  async getAllCinema(cinema: boolean, currentUser) {
-    if (!cinema) {
-      return await this.userCinemaRepo.find({ relations: ["cinema"] });
-    }
-    return await this.userCinemaRepo.find({
-      where: {
-        user_id: currentUser.user.id
-      },
-      relations: ["cinema"]
-    });
-  }
-
-  async pagination(page: number, limit: number): Promise<any> {
+  async getCinema(payload: CinemaPageOptionsDto, currentUser) {
     const pagination: IPagination = {
-      page: Number(page || 1),
-      limit: Number(limit || 15),
+      page: Number(payload.page || 1),
+      limit: Number(payload.limit || 15)
     };
     const skippedItems = (pagination.page - 1) * pagination.limit;
-    const queryBuilder = `select * from user_cinema GROUP BY id ORDER BY id ASC LIMIT ${pagination.limit} OFFSET ${skippedItems}`;
-    const cinema = await this.userCinemaRepo.query(queryBuilder);
-    return {
-      cinema,
-    };
+    if (!payload.purchased) {
+      return await this.categoryCinemaRepo.find({
+        relations: ["cinema", "category"],
+        order: {
+          id: "ASC"
+        },
+        skip: skippedItems,
+        take: pagination.limit
+      });
+    }
+    if (payload.takeAll) {
+      return await this.categoryCinemaRepo.find({
+        relations: ["cinema", "category"],
+        order: {
+          id: "ASC"
+        },
+        skip: skippedItems,
+        take: pagination.limit
+      });
+    }
+    return this.userCinemaRepo.find({
+      where: {
+        user_id: currentUser.user
+      },
+      relations: ["cinema"],
+      order: {
+        id: "ASC"
+      },
+      skip: skippedItems,
+      take: pagination.limit
+    });
   }
 }

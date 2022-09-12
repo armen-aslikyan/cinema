@@ -1,6 +1,4 @@
 import { Module } from "@nestjs/common";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { typeormConfig } from "./config/typeorm.config";
 import { UserModule } from "./module/users/user.module";
@@ -16,8 +14,8 @@ import { CategoryModule } from "./module/category/category.module";
     CinemaModule,
     CategoryModule
   ],
-  controllers: [AppController],
-  providers: [AppService]
+  controllers: [],
+  providers: []
 })
 export class AppModule {
 }

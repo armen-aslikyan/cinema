@@ -3,6 +3,7 @@ import { CinemaService } from "./cinema.service";
 import { CinemaDto } from "./dto/cinema.dto";
 import { CurrentUser } from "../../decorator/currentUser.decorator";
 import { JwtAuthGuard } from "../../guard/jwt.authGurad";
+import { CinemaPageOptionsDto } from "./dto/cinemaPageOptions.dto";
 
 @Controller("cinema")
 export class CinemaController {
@@ -30,18 +31,9 @@ export class CinemaController {
   @Get("get-cinema")
   @UseGuards(JwtAuthGuard)
   async getCinema(
-    @Query("cinema") cinema: boolean,
+    @Query() payload: CinemaPageOptionsDto,
     @CurrentUser() currentUser
   ) {
-    return this.cinemaService.getAllCinema(cinema, currentUser);
-  }
-
-  @Get("pagi")
-  @UseGuards(JwtAuthGuard)
-  async pagination(
-    @Query("page") page: number,
-    @Query("limit") limit: number
-  ) {
-    return this.cinemaService.pagination(page, limit);
+    return this.cinemaService.getCinema(payload, currentUser);
   }
 }

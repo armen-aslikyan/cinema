@@ -24,7 +24,7 @@ export class AuthService {
     if (!getUser) {
       throw new HttpException("User not found", 400);
     }
-    const token = this.JwtService.sign({user: getUser});
+    const token = this.JwtService.sign({user: getUser.id});
     return {
       message: "Success",
       data: {
